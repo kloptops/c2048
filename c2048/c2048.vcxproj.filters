@@ -30,6 +30,9 @@
     <ClInclude Include="c2048.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="c2048_ai.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -42,6 +45,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="c2048_ai.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

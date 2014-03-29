@@ -80,12 +80,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="c2048.h" />
+    <ClInclude Include="c2048_ai.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="tinyrand.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="c2048.cpp" />
+    <ClCompile Include="c2048_ai.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

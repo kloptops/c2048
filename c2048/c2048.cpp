@@ -43,6 +43,20 @@ void c2048_print(c2048_ctx *ctx)
 	}
 }
 
+uint32_t c2048_empty_cells(c2048_ctx *ctx)
+{
+	uint32_t i, counter=0;
+
+	if (ctx == NULL)
+		return 0;
+
+	for (i = 0; i < MAX_BOARD; i++)
+		if (ctx->board[i] == 0)
+			counter += 1;
+
+	return counter;
+}
+
 int c2048_is_full(c2048_ctx *ctx)
 {
 	uint32_t i;
@@ -56,12 +70,6 @@ int c2048_is_full(c2048_ctx *ctx)
 
 	return 1;
 }
-
-#define c2048_pos(x, y) ((x) + ((y) * BOARD_SIZE))
-#define c2048_addcol(pos) (pos + 1)
-#define c2048_subcol(pos) (pos - 1)
-#define c2048_addrow(pos) (pos + BOARD_SIZE)
-#define c2048_subrow(pos) (pos - BOARD_SIZE)
 
 int c2048_no_moves(c2048_ctx *ctx)
 {
@@ -255,6 +263,22 @@ uint32_t c2048_do_move(c2048_ctx *ctx, int direction)
 	return score;
 }
 
+uint32_t c2048_find_furthest(c2048_ctx *ctx, uint32_t start, uint32_t end, uint32_t step)
+{
+	uint32_t pos, previous;
+
+	previous = start;
+
+	for (pos = start; pos < end; pos += step)
+	{
+		if (ctx->board[pos] == 0)
+			break;
+		previous = pos;
+	}
+
+	return pos;
+}
+
 static const uint16_t _c2048_rand_values[10] = { 2, 2, 2, 2, 2, 2, 2, 2, 2, 4 };
 #define _c2048_rand_value_total 10
 void c2048_add_tile(c2048_ctx *ctx)
@@ -280,4 +304,17 @@ void c2048_add_tile(c2048_ctx *ctx)
 			rand_val(_c2048_rand_ctx(ctx)) % _c2048_rand_value_total];
 
 			ctx->board[rand_spot] = rand_value;
+}
+
+uint16_t c2048_max_value(c2048_ctx *ctx)
+{
+	uint32_t i;
+	uint16_t max=0;
+	for (i = 0; i < BOARD_SIZE; i++)
+	{
+		if (ctx->board[i] > max)
+			max = ctx->board[i];
+	}
+
+	return max;
 }
