@@ -35,19 +35,19 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="tinyrand.cpp">
+    <ClCompile Include="c2048.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="c2048_ai.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="c2048_ai.cpp">
+    <ClCompile Include="stdafx.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="c2048.cpp">
+    <ClCompile Include="tinyrand.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -86,14 +86,14 @@
     <ClInclude Include="tinyrand.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="c2048.cpp" />
-    <ClCompile Include="c2048_ai.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="c2048.c" />
+    <ClCompile Include="c2048_ai.c" />
+    <ClCompile Include="main.c" />
+    <ClCompile Include="stdafx.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="tinyrand.cpp" />
+    <ClCompile Include="tinyrand.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
