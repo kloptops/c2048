@@ -10,6 +10,7 @@ const int adjacent_direction[] = {MOVE_RIGHT, MOVE_LEFT, MOVE_UP, MOVE_DOWN};
 #define AI_LOOK_MOVES 7
 #define AI_DO_MOVES 3
 #define DO_PRINT 1
+// #define PLAY_SEED 1396182386
 
 int main(int argc, char **argv)
 {
@@ -19,8 +20,11 @@ int main(int argc, char **argv)
 	double best_score, score;
 	uint32_t moves_left;
 
-	// uint32_t seed = time(NULL) + clock();
-	uint32_t seed = 1396182386;
+#ifdef PLAY_SEED
+	uint32_t seed = PLAY_SEED;
+#else
+	uint32_t seed = time(NULL) + clock();
+#endif
 
 	printf("Seed: %d\n", seed);
     ai = c2048_ai_create(seed);
