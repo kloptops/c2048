@@ -1,4 +1,7 @@
 
+#ifndef _TINYRAND_H__
+#define _TINYRAND_H__
+
 #pragma once
 
 #include "stdafx.h"
@@ -19,3 +22,6 @@ typedef struct _rand_ctx
 
 uint32_t rand_val(rand_ctx *x);
 void rand_init(rand_ctx *x, uint32_t seed);
+
+#endif // _TINYRAND_H__
+

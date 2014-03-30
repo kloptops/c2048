@@ -1,4 +1,7 @@
 
+#ifndef _C2048_AI_H__
+#define _C2048_AI_H__
+
 #pragma once
 
 #include "stdafx.h"
@@ -41,3 +44,5 @@ c2048_move_chain *c2048_move_chain_next(c2048_move_chain *chain);
 uint32_t c2048_move_chain_length(c2048_move_chain *chain);
 
 void c2048_move_chain_statistics();
+
+#endif // _C2048_AI_H__

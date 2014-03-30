@@ -1,4 +1,7 @@
 
+#ifndef _C2048_H__
+#define _C2048_H__
+
 #pragma once
 
 #include "stdafx.h"
@@ -41,3 +44,4 @@ uint16_t c2048_max_value(c2048_ctx *ctx);
 #define c2048_addrow(pos) ((pos) + BOARD_SIZE)
 #define c2048_subrow(pos) ((pos) - BOARD_SIZE)
 
+#endif // _C2048_H__
