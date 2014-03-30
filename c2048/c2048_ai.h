@@ -15,7 +15,7 @@ typedef struct _c2048_move_chain
 {
 	struct _c2048_move_chain *next;
 	int direction;
-	float score;
+	double score;
 } c2048_move_chain;
 
 
@@ -24,16 +24,16 @@ c2048_ctx *c2048_ai_board_push(c2048_ai_ctx *ai_ctx);
 c2048_ctx *c2048_ai_board_pop(c2048_ai_ctx *ai_ctx, int keep);
 void c2048_ai_destroy(c2048_ai_ctx *ai_ctx);
 
-float c2048_ai_rate_move(c2048_ai_ctx *ai_ctx, int direction);
+double c2048_ai_rate_move(c2048_ai_ctx *ai_ctx, int direction);
 
-float c2048_ai_calc_smoothness(c2048_ai_ctx *ai_ctx);
-float c2048_ai_calc_monotonicity2(c2048_ai_ctx *ai_ctx);
+double c2048_ai_calc_smoothness(c2048_ai_ctx *ai_ctx);
+double c2048_ai_calc_monotonicity2(c2048_ai_ctx *ai_ctx);
 
-float c2048_ai_find_moves(c2048_ai_ctx *ai_ctx, c2048_move_chain *move_chain, int depth, int max_depth);
+double c2048_ai_find_moves(c2048_ai_ctx *ai_ctx, c2048_move_chain *move_chain, int depth, int max_depth);
 
-// Not thread safe :(
-c2048_move_chain *c2048_move_chain_create(int direction, float score);
-void c2048_move_chain_append(c2048_move_chain *chain, int direction, float score);
+// Not thread safe double
+c2048_move_chain *c2048_move_chain_create(int direction, double score);
+void c2048_move_chain_append(c2048_move_chain *chain, int direction, double score);
 void c2048_move_chain_append_chain(c2048_move_chain *chain, c2048_move_chain *new_chain);
 void c2048_move_chain_destroy(c2048_move_chain *chain);
 

@@ -102,10 +102,10 @@ void c2048_ai_destroy(c2048_ai_ctx *ai_ctx)
 }
 
 
-float c2048_ai_find_moves(c2048_ai_ctx *ai_ctx, c2048_move_chain *move_chain, int depth, int max_depth)
+double c2048_ai_find_moves(c2048_ai_ctx *ai_ctx, c2048_move_chain *move_chain, int depth, int max_depth)
 {
 	int direction, best_direction = MOVE_UP;
-	float score, best_score = -100000.f;
+	double score, best_score = -100000.f;
 	c2048_move_chain *best_moves = NULL, *temp_chain;
 
 	for (direction = MOVE_FIRST; direction < MOVE_MAX; direction++)
@@ -150,23 +150,23 @@ float c2048_ai_find_moves(c2048_ai_ctx *ai_ctx, c2048_move_chain *move_chain, in
 	return best_score;
 }
 
-float c2048_ai_rate_move(c2048_ai_ctx *ai_ctx, int direction)
+double c2048_ai_rate_move(c2048_ai_ctx *ai_ctx, int direction)
 {
 	c2048_ctx *ctx;
-	float score = 0.0f, move_score = 0.0f, smooth_score = 0.0f, empty_score = 0.0f, monotonicity = 0.0f, max_value = 0.0f;
+	double score = 0.0f, move_score = 0.0f, smooth_score = 0.0f, empty_score = 0.0f, monotonicity = 0.0f, max_value = 0.0f;
 
 	ctx = c2048_ai_board_push(ai_ctx);
 
-	move_score = (float)c2048_do_move(ctx, direction);
+	move_score = (double)c2048_do_move(ctx, direction);
 
-	smooth_score = c2048_ai_calc_smoothness(ai_ctx) * -0.1f;
+	// smooth_score = c2048_ai_calc_smoothness(ai_ctx) * -0.1f;
 
 	if (!c2048_is_full(ctx))
-		empty_score = log((float)c2048_empty_cells(ctx)) * 2.7f;
+		empty_score = log((double)c2048_empty_cells(ctx)) * 2.7f;
 
 	monotonicity = c2048_ai_calc_monotonicity2(ai_ctx);
 
-	max_value = (float)c2048_max_value(ctx);
+	max_value = (double)c2048_max_value(ctx);
 
 	(void)c2048_ai_board_pop(ai_ctx, 0);
 
@@ -179,14 +179,14 @@ float c2048_ai_rate_move(c2048_ai_ctx *ai_ctx, int direction)
 // between neighboring tiles (in log space, so it represents the
 // number of merges that need to happen before they can merge). 
 // Note that the pieces can be distant
-float c2048_ai_calc_smoothness(c2048_ai_ctx *ai_ctx)
+double c2048_ai_calc_smoothness(c2048_ai_ctx *ai_ctx)
 {
 	uint32_t x, y;
 	uint32_t pos, pos2;
 
 	c2048_ctx *ctx = ai_ctx->current_board;
 
-	float value, _log2, smoothness = 0.0f;
+	double value, _log2, smoothness = 0.0f;
 
 	_log2 = log(2.f);
 
@@ -197,17 +197,17 @@ float c2048_ai_calc_smoothness(c2048_ai_ctx *ai_ctx)
 			pos = c2048_pos(x, y);
 			if (ctx->board[pos] != 0)
 			{
-				value = log((float)ctx->board[pos]) / _log2;
+				value = log((double)ctx->board[pos]) / _log2;
 				pos2 = c2048_find_furthest(ctx, pos, c2048_pos(BOARD_SIZE, y), 1);
 				if (pos2 != pos && ctx->board[pos2] != 0)
 				{
-					smoothness += fabs(value - (log((float)ctx->board[pos2]) / _log2));
+					smoothness += fabs(value - (log((double)ctx->board[pos2]) / _log2));
 				}
 
 				pos2 = c2048_find_furthest(ctx, pos, c2048_pos(x, BOARD_SIZE), BOARD_SIZE);
 				if (pos2 != pos && ctx->board[pos2] != 0)
 				{
-					smoothness += fabs(value - (log((float)ctx->board[pos2]) / _log2));
+					smoothness += fabs(value - (log((double)ctx->board[pos2]) / _log2));
 				}
 			}
 		}
@@ -220,13 +220,13 @@ float c2048_ai_calc_smoothness(c2048_ai_ctx *ai_ctx)
 
 // measures how monotonic the grid is. This means the values of the tiles are strictly increasing
 // or decreasing in both the left/right and up/down directions
-float c2048_ai_calc_monotonicity2(c2048_ai_ctx *ai_ctx)
+double c2048_ai_calc_monotonicity2(c2048_ai_ctx *ai_ctx)
 {
 	// scores for all four directions
-	float totals[4] = { 0, 0, 0, 0 };
+	double totals[4] = { 0, 0, 0, 0 };
 	uint32_t current, next, x, y;
 	c2048_ctx *ctx;
-	float current_value, next_value, _log2;
+	double current_value, next_value, _log2;
 
 	_log2 = log(2.0f);
 
@@ -245,8 +245,8 @@ float c2048_ai_calc_monotonicity2(c2048_ai_ctx *ai_ctx)
 			if (next >= 4)
 				next--;
 
-			current_value = ((ctx->board[c2048_pos(x, current)] != 0) ? (log((float)ctx->board[c2048_pos(x, current)]) / _log2) : (0.f));
-			next_value = ((ctx->board[c2048_pos(x, next)] != 0) ? (log((float)ctx->board[c2048_pos(x, next)]) / _log2) : (0.f));
+			current_value = ((ctx->board[c2048_pos(x, current)] != 0) ? (log((double)ctx->board[c2048_pos(x, current)]) / _log2) : (0.f));
+			next_value = ((ctx->board[c2048_pos(x, next)] != 0) ? (log((double)ctx->board[c2048_pos(x, next)]) / _log2) : (0.f));
 			if (current_value > next_value)
 			{
 				totals[MOVE_UP] += next_value - current_value;
@@ -271,8 +271,8 @@ float c2048_ai_calc_monotonicity2(c2048_ai_ctx *ai_ctx)
 		if (next >= 4)
 			next--;
 
-		current_value = ((ctx->board[c2048_pos(current, y)] != 0) ? (log((float)ctx->board[c2048_pos(current, y)]) / _log2) : (0.f));
-		next_value = ((ctx->board[c2048_pos(next, y)] != 0) ? (log((float)ctx->board[c2048_pos(next, y)]) / _log2) : (0.f));
+		current_value = ((ctx->board[c2048_pos(current, y)] != 0) ? (log((double)ctx->board[c2048_pos(current, y)]) / _log2) : (0.f));
+		next_value = ((ctx->board[c2048_pos(next, y)] != 0) ? (log((double)ctx->board[c2048_pos(next, y)]) / _log2) : (0.f));
 
 		if (current_value > next_value)
 		{
@@ -286,7 +286,7 @@ float c2048_ai_calc_monotonicity2(c2048_ai_ctx *ai_ctx)
 		next++;
 	}
 
-	return _MAX(totals[MOVE_UP], totals[MOVE_RIGHT]) + _MAX(totals[MOVE_DOWN], totals[MOVE_LEFT]);
+	return _MAX(totals[MOVE_UP], totals[MOVE_DOWN]) + _MAX(totals[MOVE_RIGHT], totals[MOVE_LEFT]);
 }
 
 // TODO: Make a parent allocator that can juggle allocation better :)
@@ -310,7 +310,7 @@ void c2048_move_chain_statistics()
 }
 
 
-c2048_move_chain *c2048_move_chain_create(int direction, float score)
+c2048_move_chain *c2048_move_chain_create(int direction, double score)
 {
 	c2048_move_chain *chain;
 
@@ -337,7 +337,7 @@ c2048_move_chain *c2048_move_chain_create(int direction, float score)
 	return chain;
 }
 
-void c2048_move_chain_append(c2048_move_chain *chain, int direction, float score)
+void c2048_move_chain_append(c2048_move_chain *chain, int direction, double score)
 {
 	c2048_move_chain *new_chain;
 
