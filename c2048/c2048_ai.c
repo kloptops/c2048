@@ -237,9 +237,9 @@ double c2048_ai_calc_smoothness(c2048_ai_ctx *ai_ctx)
 }
 
 
-static const uint32_t _rowscore_detail[16] = {
+static const uint32_t _rowscore_weight[16] = {
 	16, 15, 14, 13,
-	12, 11, 10,  9,
+	 9, 10, 11, 12,
 	 8,  7,  6,  5,
 	 4,  3,  2,  1,
 	};
@@ -251,7 +251,7 @@ uint32_t c2048_ai_calc_rowscore(c2048_ai_ctx *ai_ctx)
 	board = ai_ctx->current_board->board;
 
 	for (i = 0; i < MAX_BOARD; i++)
-		score += board[i] * _rowscore_detail[i];
+		score += board[i] * _rowscore_weight[i];
 
 	return score;
 }
