@@ -20,8 +20,10 @@ typedef struct _rand_ctx
 	uint32_t d;
 } rand_ctx;
 
-uint32_t rand_val(rand_ctx *x);
+/* Init the rand_ctx state with seed. */
 void rand_init(rand_ctx *x, uint32_t seed);
 
-#endif // _TINYRAND_H__
+/* Return a random number using rand_ctx. */
+uint32_t rand_val(rand_ctx *x);
 
+#endif // _TINYRAND_H__

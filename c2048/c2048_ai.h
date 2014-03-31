@@ -12,6 +12,13 @@ typedef struct _c2048_ai_ctx
 	c2048_ctx *free_boards;
 	c2048_ctx *current_board;
 	uint32_t total_free_boards;
+
+	double score_weight;
+	double mono2_weight;
+	double smooth_weight;
+	double free_weight;
+	double max_weight;
+	double no_moves_weight;
 } c2048_ai_ctx;
 
 typedef struct _c2048_move_chain
@@ -34,7 +41,7 @@ double c2048_ai_calc_monotonicity2(c2048_ai_ctx *ai_ctx);
 
 double c2048_ai_find_moves(c2048_ai_ctx *ai_ctx, c2048_move_chain *move_chain, int depth, int max_depth);
 
-// Not thread safe double
+// Not thread safe :(
 c2048_move_chain *c2048_move_chain_create(int direction, double score);
 void c2048_move_chain_append(c2048_move_chain *chain, int direction, double score);
 void c2048_move_chain_append_chain(c2048_move_chain *chain, c2048_move_chain *new_chain);

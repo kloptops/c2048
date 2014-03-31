@@ -74,7 +74,7 @@ int c2048_is_full(c2048_ctx *ctx)
 int c2048_no_moves(c2048_ctx *ctx)
 {
 	uint32_t x, y, pos;
-	uint16_t cell;
+	uint32_t cell;
 
 	for (y = 0; y < BOARD_SIZE; y++)
 	{
@@ -98,9 +98,9 @@ int c2048_no_moves(c2048_ctx *ctx)
 int c2048_can_move(c2048_ctx *ctx, int direction)
 {
 	uint32_t x, y, pos;
-	uint16_t cell, *board;
+	uint32_t cell, *board;
 
-	board = (uint16_t*)(ctx->board);
+	board = (uint32_t*)(ctx->board);
 
 	if (direction == MOVE_LEFT || direction == MOVE_RIGHT)
 	{
@@ -158,9 +158,9 @@ int c2048_can_move(c2048_ctx *ctx, int direction)
 uint32_t _c2048_do_collapse(c2048_ctx *ctx, int start, int end, int step)
 {
 	int i, score = 0;
-	uint16_t *board, *cell;
+	uint32_t *board, *cell;
 
-	board = (uint16_t*)(ctx->board);
+	board = (uint32_t*)(ctx->board);
 
 	for (i = start; i < end; i += step)
 	{
@@ -182,14 +182,14 @@ uint32_t _c2048_do_collapse(c2048_ctx *ctx, int start, int end, int step)
 void _c2048_do_move(c2048_ctx *ctx, int start, int end, int step, int direction)
 {
 	int i, pos;
-	uint16_t *board;
-	uint16_t _cells[BOARD_SIZE * 2], *cells, cell_counter = 0;
+	uint32_t *board;
+	uint32_t _cells[BOARD_SIZE * 2], *cells, cell_counter = 0;
 
 	for (i = 0; i < BOARD_SIZE * 2; i++)
 		_cells[i] = 0;
 
-	board = (uint16_t*)(ctx->board);
-	cells = (uint16_t*)&(_cells[BOARD_SIZE]);
+	board = (uint32_t*)(ctx->board);
+	cells = (uint32_t*)&(_cells[BOARD_SIZE]);
 
 	for (pos = start; pos <= end; pos += step)
 	{
@@ -203,7 +203,7 @@ void _c2048_do_move(c2048_ctx *ctx, int start, int end, int step, int direction)
 
 	/* HAX */
 	if (direction == MOVE_DOWN || direction == MOVE_RIGHT)
-		cells = (uint16_t*)&(_cells[cell_counter]);
+		cells = (uint32_t*)&(_cells[cell_counter]);
 
 	cell_counter = 0;
 	for (pos = start; pos <= end; pos += step)
@@ -216,7 +216,7 @@ uint32_t c2048_do_move(c2048_ctx *ctx, int direction)
 {
 	uint32_t score = 0, i;
 	uint32_t start, end, step;
-	uint16_t cells[MAX_BOARD];
+	uint32_t cells[MAX_BOARD];
 
 	switch (direction)
 	{
@@ -279,14 +279,14 @@ uint32_t c2048_find_furthest(c2048_ctx *ctx, uint32_t start, uint32_t end, uint3
 	return pos;
 }
 
-static const uint16_t _c2048_rand_values[10] = { 2, 2, 2, 2, 2, 2, 2, 2, 2, 4 };
+static const uint32_t _c2048_rand_values[10] = { 2, 2, 2, 2, 2, 2, 2, 2, 2, 4 };
 #define _c2048_rand_value_total 10
 void c2048_add_tile(c2048_ctx *ctx)
 {
 	uint32_t i;
 	uint32_t rand_spots_total = 0;
-	uint16_t rand_spots[MAX_BOARD];
-	uint16_t rand_spot, rand_value;
+	uint32_t rand_spots[MAX_BOARD];
+	uint32_t rand_spot, rand_value;
 
 	if (ctx == NULL)
 		return;
@@ -306,10 +306,10 @@ void c2048_add_tile(c2048_ctx *ctx)
 			ctx->board[rand_spot] = rand_value;
 }
 
-uint16_t c2048_max_value(c2048_ctx *ctx)
+uint32_t c2048_max_value(c2048_ctx *ctx)
 {
 	uint32_t i;
-	uint16_t max=0;
+	uint32_t max=0;
 	for (i = 0; i < BOARD_SIZE; i++)
 	{
 		if (ctx->board[i] > max)

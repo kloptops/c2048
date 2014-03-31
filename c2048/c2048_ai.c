@@ -20,6 +20,13 @@ c2048_ai_ctx *c2048_ai_create(uint32_t seed)
 
 	ai_ctx->total_free_boards = 0;
 
+	ai_ctx->score_weight = 1.0;
+	ai_ctx->mono2_weight = 2.f;
+	ai_ctx->smooth_weight = -0.1f;
+	ai_ctx->free_weight = 2.7;
+	ai_ctx->max_weight = 0.5;
+	ai_ctx->no_moves_weight = -3000.f;
+
 	c2048_init(ai_ctx->current_board, seed);
 
 	return ai_ctx;
@@ -105,7 +112,8 @@ void c2048_ai_destroy(c2048_ai_ctx *ai_ctx)
 double c2048_ai_find_moves(c2048_ai_ctx *ai_ctx, c2048_move_chain *move_chain, int depth, int max_depth)
 {
 	int direction, best_direction = MOVE_UP;
-	double score, best_score = -100000.f;
+	double score, best_score = 0.f;
+	int first_move = 1;
 	c2048_move_chain *best_moves = NULL, *temp_chain;
 
 	for (direction = MOVE_FIRST; direction < MOVE_MAX; direction++)
@@ -131,8 +139,9 @@ double c2048_ai_find_moves(c2048_ai_ctx *ai_ctx, c2048_move_chain *move_chain, i
 
 		temp_chain->score = score;
 
-		if (score > best_score)
+		if (first_move == 1 || score > best_score)
 		{
+			first_move = 0;
 			best_score = score;
 			if (best_moves != NULL)
 				c2048_move_chain_destroy(best_moves);
@@ -143,8 +152,8 @@ double c2048_ai_find_moves(c2048_ai_ctx *ai_ctx, c2048_move_chain *move_chain, i
 			c2048_move_chain_destroy(temp_chain);
 	}
 
-	if (best_moves == NULL)
-		return -100000.f;
+	if (first_move == 1 || best_moves == NULL)
+		return 0.0f;
 
 	c2048_move_chain_append_chain(move_chain, best_moves);
 	return best_score;
@@ -153,24 +162,29 @@ double c2048_ai_find_moves(c2048_ai_ctx *ai_ctx, c2048_move_chain *move_chain, i
 double c2048_ai_rate_move(c2048_ai_ctx *ai_ctx, int direction)
 {
 	c2048_ctx *ctx;
-	double score = 0.0f, move_score = 0.0f, smooth_score = 0.0f, empty_score = 0.0f, monotonicity = 0.0f, max_value = 0.0f;
+	double score = 0.0f;
 
 	ctx = c2048_ai_board_push(ai_ctx);
 
-	move_score = (double)c2048_do_move(ctx, direction);
+	score += (double)c2048_do_move(ctx, direction) * ai_ctx->score_weight;
 
-	// smooth_score = c2048_ai_calc_smoothness(ai_ctx) * -0.1f;
+	if (ai_ctx->smooth_weight != 0.0)
+		score += c2048_ai_calc_smoothness(ai_ctx) * ai_ctx->smooth_weight;
 
-	if (!c2048_is_full(ctx))
-		empty_score = log((double)c2048_empty_cells(ctx)) * 2.7f;
+	if (!c2048_is_full(ctx) && ai_ctx->free_weight != 0.0)
+		score += log((double)c2048_empty_cells(ctx)) * ai_ctx->free_weight;
 
-	monotonicity = c2048_ai_calc_monotonicity2(ai_ctx);
+	if (ai_ctx->mono2_weight != 0.0)
+		score += c2048_ai_calc_monotonicity2(ai_ctx) * ai_ctx->mono2_weight;
 
-	max_value = (double)c2048_max_value(ctx);
+	if (ai_ctx->max_weight != 0.0)
+		score += (double)c2048_max_value(ctx) * ai_ctx->max_weight;
+
+	if (ai_ctx->no_moves_weight != 0.0)
+		score += (double)c2048_no_moves(ai_ctx->current_board) * ai_ctx->no_moves_weight;
 
 	(void)c2048_ai_board_pop(ai_ctx, 0);
 
-	score = move_score + smooth_score + empty_score + monotonicity;
 	return score;
 }
 
