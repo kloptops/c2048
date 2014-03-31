@@ -236,13 +236,24 @@ double c2048_ai_calc_smoothness(c2048_ai_ctx *ai_ctx)
 	return smoothness;
 }
 
-
+#if BOARD_SIZE == 4
 static const uint32_t _rowscore_weight[16] = {
 	16, 15, 14, 13,
 	 9, 10, 11, 12,
 	 8,  7,  6,  5,
 	 4,  3,  2,  1,
 	};
+#elif BOARD_SIZE == 5
+static const uint32_t _rowscore_weight[25] = {
+	25, 24, 23, 22, 21,
+	16, 17, 18, 19, 20,
+	15, 14, 13, 12, 11,
+	 6,  7,  8,  9, 10,
+	 5,  4,  3,  2,  1,
+	};
+#else
+#error "Run make_rowscore_weights.py"
+#endif
 
 uint32_t c2048_ai_calc_rowscore(c2048_ai_ctx *ai_ctx)
 {

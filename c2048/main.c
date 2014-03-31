@@ -19,6 +19,7 @@ int main(int argc, char **argv)
 	c2048_move_chain *move_chain;
 	int moves = 0, done_moves, moves_threshold;
 	double best_score;
+	int move_counter[4] = { 0, 0, 0, 0 };
 
 #ifdef PLAY_SEED
 	uint32_t seed = PLAY_SEED;
@@ -65,6 +66,7 @@ int main(int argc, char **argv)
 			if (DO_PRINT)
 				printf("\n%-10s (%0.2f / %0.2f)\n", move_to_str[move_chain->direction], move_chain->score, best_score);
 
+			move_counter[move_chain->direction] += 1;
 			c2048_do_move(ai->current_board, move_chain->direction);
 
 			moves += 1;
@@ -85,7 +87,7 @@ int main(int argc, char **argv)
 		printf("Seed:  %d\n", seed);
 
 	printf("Score: %d\n", ai->current_board->score);
-	printf("Moves: %d\n", moves);
+	printf("Moves: %d\n        Up: %d, Down: %d, Left: %d, Right: %d\n\n", moves, move_counter[0], move_counter[1], move_counter[2], move_counter[3]);
 	c2048_print(ai->current_board);
 
 	printf("\n");
