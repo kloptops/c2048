@@ -8,7 +8,9 @@
 
 #pragma once
 
+#ifdef _MSC_VER
 #include "targetver.h"
+#endif
 
 #include <time.h>
 #include <stdlib.h>
@@ -16,7 +18,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include <tchar.h>
 
 
 // TODO: reference additional headers your program requires here

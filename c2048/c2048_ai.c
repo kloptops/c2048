@@ -59,7 +59,7 @@ c2048_ctx *c2048_ai_board_push(c2048_ai_ctx *ai_ctx)
 
 c2048_ctx *c2048_ai_board_pop(c2048_ai_ctx *ai_ctx, int keep)
 {
-	c2048_ctx *new_ctx, *old_ctx, *tmp;
+	c2048_ctx *new_ctx, *old_ctx;
 
 	old_ctx = ai_ctx->current_board;
 	if (old_ctx->_next == NULL)
@@ -96,6 +96,7 @@ void c2048_ai_destroy(c2048_ai_ctx *ai_ctx)
 	{
 		next_ctx = ctx->_next;
 		free(ctx);
+		ctx = next_ctx;
 	}
 
 	ctx = ai_ctx->current_board;
@@ -103,6 +104,7 @@ void c2048_ai_destroy(c2048_ai_ctx *ai_ctx)
 	{
 		next_ctx = ctx->_next;
 		free(ctx);
+		ctx = next_ctx;
 	}
 
 	free(ai_ctx);
@@ -111,7 +113,7 @@ void c2048_ai_destroy(c2048_ai_ctx *ai_ctx)
 
 double c2048_ai_find_moves(c2048_ai_ctx *ai_ctx, c2048_move_chain *move_chain, int depth, int max_depth)
 {
-	int direction, best_direction = MOVE_UP;
+	int direction;
 	double score, best_score = 0.f;
 	int first_move = 1;
 	c2048_move_chain *best_moves = NULL, *temp_chain;
@@ -275,32 +277,34 @@ double c2048_ai_calc_monotonicity2(c2048_ai_ctx *ai_ctx)
 
 	// left/right direction
 	for (y = 0; y < MAX_BOARD; y++)
-		current = 0;
-	next = current + 1;
-	while (next < 4)
 	{
-		while (next < 4 && ctx->board[c2048_pos(next, y)] == 0)
-			next++;
-
-		if (next >= 4)
-			next--;
-
-		current_value = ((ctx->board[c2048_pos(current, y)] != 0) ? (log((double)ctx->board[c2048_pos(current, y)]) / _log2) : (0.f));
-		next_value = ((ctx->board[c2048_pos(next, y)] != 0) ? (log((double)ctx->board[c2048_pos(next, y)]) / _log2) : (0.f));
-
-		if (current_value > next_value)
+		current = 0;
+		next = current + 1;
+		while (next < 4)
 		{
-			totals[MOVE_LEFT] += next_value - current_value;
-		}
-		else if (next_value > current_value) {
-			totals[MOVE_RIGHT] += current_value - next_value;
-		}
+			while (next < 4 && ctx->board[c2048_pos(next, y)] == 0)
+				next++;
 
-		current = next;
-		next++;
+			if (next >= 4)
+				next--;
+
+			current_value = ((ctx->board[c2048_pos(current, y)] != 0) ? (log((double)ctx->board[c2048_pos(current, y)]) / _log2) : (0.f));
+			next_value = ((ctx->board[c2048_pos(next, y)] != 0) ? (log((double)ctx->board[c2048_pos(next, y)]) / _log2) : (0.f));
+
+			if (current_value > next_value)
+			{
+				totals[MOVE_LEFT] += next_value - current_value;
+			}
+			else if (next_value > current_value) {
+				totals[MOVE_RIGHT] += current_value - next_value;
+			}
+
+			current = next;
+			next++;
+		}
 	}
 
-	return _MAX(totals[MOVE_UP], totals[MOVE_DOWN]) + _MAX(totals[MOVE_RIGHT], totals[MOVE_LEFT]);
+	return _MAX(totals[MOVE_UP], totals[MOVE_RIGHT]) + _MAX(totals[MOVE_DOWN], totals[MOVE_LEFT]);
 }
 
 // TODO: Make a parent allocator that can juggle allocation better :)

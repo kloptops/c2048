@@ -7,7 +7,7 @@
 const char *move_to_str[] = { "UP", "DOWN", "LEFT", "RIGHT" };
 const int adjacent_direction[] = {MOVE_RIGHT, MOVE_LEFT, MOVE_UP, MOVE_DOWN};
 
-#define AI_LOOK_MOVES 8
+#define AI_LOOK_MOVES 7
 #define AI_DO_MOVES 3
 #define DO_PRINT 1
 
@@ -19,7 +19,6 @@ int main(int argc, char **argv)
 	c2048_move_chain *move_chain;
 	int moves = 0, done_moves, moves_threshold;
 	double best_score;
-	uint32_t moves_left;
 
 #ifdef PLAY_SEED
 	uint32_t seed = PLAY_SEED;
@@ -35,7 +34,7 @@ int main(int argc, char **argv)
 	c2048_print(ai->current_board);
 
 	ai->smooth_weight = 0.0f;
-	ai->mono2_weight = 0.0f;
+	ai->mono2_weight = 0.0f; // i think i translated the code wrong :D
 
 	while (!c2048_no_moves(ai->current_board))
 	{

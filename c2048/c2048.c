@@ -265,15 +265,12 @@ uint32_t c2048_do_move(c2048_ctx *ctx, int direction)
 
 uint32_t c2048_find_furthest(c2048_ctx *ctx, uint32_t start, uint32_t end, uint32_t step)
 {
-	uint32_t pos, previous;
-
-	previous = start;
+	uint32_t pos;
 
 	for (pos = start; pos < end; pos += step)
 	{
 		if (ctx->board[pos] == 0)
 			break;
-		previous = pos;
 	}
 
 	return pos;
