@@ -19,6 +19,7 @@ typedef struct _c2048_ai_ctx
 	double free_weight;
 	double max_weight;
 	double no_moves_weight;
+	double rowscore_weight;
 } c2048_ai_ctx;
 
 typedef struct _c2048_move_chain
@@ -38,6 +39,7 @@ double c2048_ai_rate_move(c2048_ai_ctx *ai_ctx, int direction);
 
 double c2048_ai_calc_smoothness(c2048_ai_ctx *ai_ctx);
 double c2048_ai_calc_monotonicity2(c2048_ai_ctx *ai_ctx);
+uint32_t c2048_ai_calc_rowscore(c2048_ai_ctx *ai_ctx);
 
 double c2048_ai_find_moves(c2048_ai_ctx *ai_ctx, c2048_move_chain *move_chain, int depth, int max_depth);
 

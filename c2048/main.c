@@ -11,7 +11,7 @@ const int adjacent_direction[] = {MOVE_RIGHT, MOVE_LEFT, MOVE_UP, MOVE_DOWN};
 #define AI_DO_MOVES 3
 #define DO_PRINT 1
 
-// #define PLAY_SEED 1396182386
+// #define PLAY_SEED 1396250852
 
 int main(int argc, char **argv)
 {
@@ -85,6 +85,7 @@ int main(int argc, char **argv)
 		printf("Seed:  %d\n", seed);
 
 	printf("Score: %d\n", ai->current_board->score);
+	printf("Moves: %d\n", moves);
 	c2048_print(ai->current_board);
 
 	printf("\n");

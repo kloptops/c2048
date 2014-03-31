@@ -26,6 +26,7 @@ c2048_ai_ctx *c2048_ai_create(uint32_t seed)
 	ai_ctx->free_weight = 2.7;
 	ai_ctx->max_weight = 0.5;
 	ai_ctx->no_moves_weight = -3000.f;
+	ai_ctx->rowscore_weight = 0.5;
 
 	c2048_init(ai_ctx->current_board, seed);
 
@@ -185,6 +186,9 @@ double c2048_ai_rate_move(c2048_ai_ctx *ai_ctx, int direction)
 	if (ai_ctx->no_moves_weight != 0.0)
 		score += (double)c2048_no_moves(ai_ctx->current_board) * ai_ctx->no_moves_weight;
 
+	if (ai_ctx->rowscore_weight != 0.0)
+		score += (double)c2048_ai_calc_rowscore(ai_ctx) * ai_ctx->rowscore_weight;
+
 	(void)c2048_ai_board_pop(ai_ctx, 0);
 
 	return score;
@@ -231,6 +235,27 @@ double c2048_ai_calc_smoothness(c2048_ai_ctx *ai_ctx)
 
 	return smoothness;
 }
+
+
+static const uint32_t _rowscore_detail[16] = {
+	16, 15, 14, 13,
+	12, 11, 10,  9,
+	 8,  7,  6,  5,
+	 4,  3,  2,  1,
+	};
+
+uint32_t c2048_ai_calc_rowscore(c2048_ai_ctx *ai_ctx)
+{
+	uint32_t score = 0, i, *board;
+
+	board = ai_ctx->current_board->board;
+
+	for (i = 0; i < MAX_BOARD; i++)
+		score += board[i] * _rowscore_detail[i];
+
+	return score;
+}
+
 
 #define _MAX(a, b) (((a) > (b)) ? (a) : (b))
 

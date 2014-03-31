@@ -37,7 +37,7 @@ void c2048_print(c2048_ctx *ctx)
 	{
 		if ((i % BOARD_SIZE) == 0)
 			printf("  ");
-		printf(" %4d", ctx->board[i]);
+		printf(" %5d", ctx->board[i]);
 		if ((i % BOARD_SIZE) == (BOARD_SIZE - 1))
 			printf("\n");
 	}
