@@ -10,7 +10,7 @@
 
 /* our 2048 structures */
 #define BOARD_SIZE 4
-#define MAX_BOARD (BOARD_SIZE * BOARD_SIZE)
+#define BOARD_MAX (BOARD_SIZE * BOARD_SIZE)
 
 #define MOVE_UP    0
 #define MOVE_DOWN  1
@@ -23,7 +23,7 @@ typedef struct _c2048_ctx
 {
 	struct _c2048_ctx *_next;
 	uint32_t score;
-	uint32_t board[MAX_BOARD];
+	uint32_t board[BOARD_MAX];
 	rand_ctx b_rand;
 } c2048_ctx;
 
@@ -44,13 +44,17 @@ uint32_t c2048_do_move(c2048_ctx *ctx, int direction);
  */
 void c2048_add_tile(c2048_ctx *ctx);
 
-/* Returns 1 if there are no free cells, otherwise returns 0. */
+/* Returns 1 if there are no free tiles, otherwise returns 0. */
 int c2048_is_full(c2048_ctx *ctx);
 
-/* Returns the number of empty cells on the board. */
-uint32_t c2048_empty_cells(c2048_ctx *ctx);
+/* Returns the number of empty tiles on the board. */
+uint32_t c2048_empty_tiles(c2048_ctx *ctx);
 
-/* Checks to see if no moves are possible. */
+/* Checks to see if no moves are possible.
+*
+* This function is designed to just figure out if ANY moves are possible.
+* Use c2048_can_move(ctx, direction) to tell if a particular direction is possible.
+*/
 int c2048_no_moves(c2048_ctx *ctx);
 
 /* Dumps the board to STDOUT. */

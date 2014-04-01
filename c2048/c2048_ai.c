@@ -175,7 +175,7 @@ double c2048_ai_rate_move(c2048_ai_ctx *ai_ctx, int direction)
 		score += c2048_ai_calc_smoothness(ai_ctx) * ai_ctx->smooth_weight;
 
 	if (!c2048_is_full(ctx) && ai_ctx->free_weight != 0.0)
-		score += log((double)c2048_empty_cells(ctx)) * ai_ctx->free_weight;
+		score += log((double)c2048_empty_tiles(ctx)) * ai_ctx->free_weight;
 
 	if (ai_ctx->mono2_weight != 0.0)
 		score += c2048_ai_calc_monotonicity2(ai_ctx) * ai_ctx->mono2_weight;
@@ -261,7 +261,7 @@ uint32_t c2048_ai_calc_rowscore(c2048_ai_ctx *ai_ctx)
 
 	board = ai_ctx->current_board->board;
 
-	for (i = 0; i < MAX_BOARD; i++)
+	for (i = 0; i < BOARD_MAX; i++)
 		score += board[i] * _rowscore_weight[i];
 
 	return score;
@@ -285,7 +285,7 @@ double c2048_ai_calc_monotonicity2(c2048_ai_ctx *ai_ctx)
 	ctx = ai_ctx->current_board;
 
 	// up/down direction
-	for (x = 0; x < MAX_BOARD; x++)
+	for (x = 0; x < BOARD_MAX; x++)
 	{
 		current = 0;
 		next = current + 1;
@@ -312,7 +312,7 @@ double c2048_ai_calc_monotonicity2(c2048_ai_ctx *ai_ctx)
 	}
 
 	// left/right direction
-	for (y = 0; y < MAX_BOARD; y++)
+	for (y = 0; y < BOARD_MAX; y++)
 	{
 		current = 0;
 		next = current + 1;

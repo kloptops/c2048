@@ -33,7 +33,7 @@ void c2048_print(c2048_ctx *ctx)
 	if (ctx == NULL)
 		return;
 
-	for (i = 0; i < MAX_BOARD; i++)
+	for (i = 0; i < BOARD_MAX; i++)
 	{
 		if ((i % BOARD_SIZE) == 0)
 			printf("  ");
@@ -43,14 +43,14 @@ void c2048_print(c2048_ctx *ctx)
 	}
 }
 
-uint32_t c2048_empty_cells(c2048_ctx *ctx)
+uint32_t c2048_empty_tiles(c2048_ctx *ctx)
 {
 	uint32_t i, counter=0;
 
 	if (ctx == NULL)
 		return 0;
 
-	for (i = 0; i < MAX_BOARD; i++)
+	for (i = 0; i < BOARD_MAX; i++)
 		if (ctx->board[i] == 0)
 			counter += 1;
 
@@ -64,30 +64,31 @@ int c2048_is_full(c2048_ctx *ctx)
 	if (ctx == NULL)
 		return 1;
 
-	for (i = 0; i < MAX_BOARD; i++)
+	for (i = 0; i < BOARD_MAX; i++)
 	if (ctx->board[i] == 0)
 		return 0;
 
 	return 1;
 }
 
+
 int c2048_no_moves(c2048_ctx *ctx)
 {
 	uint32_t x, y, pos;
-	uint32_t cell;
+	uint32_t tile;
 
 	for (y = 0; y < BOARD_SIZE; y++)
 	{
 		for (x = 0; x < BOARD_SIZE; x++)
 		{
 			pos = c2048_pos(x, y);
-			cell = ctx->board[pos];
-			if (cell == 0)
+			tile = ctx->board[pos];
+			if (tile == 0)
 				return 0;
 
-			if (x < BOARD_SIZE - 1 && cell == ctx->board[c2048_addcol(pos)])
+			if (x < BOARD_SIZE - 1 && tile == ctx->board[c2048_addcol(pos)])
 				return 0;
-			if (y < BOARD_SIZE - 1 && cell == ctx->board[c2048_addrow(pos)])
+			if (y < BOARD_SIZE - 1 && tile == ctx->board[c2048_addrow(pos)])
 				return 0;
 		}
 	}
@@ -98,7 +99,7 @@ int c2048_no_moves(c2048_ctx *ctx)
 int c2048_can_move(c2048_ctx *ctx, int direction)
 {
 	uint32_t x, y, pos;
-	uint32_t cell, *board;
+	uint32_t tile, *board;
 
 	board = (uint32_t*)(ctx->board);
 
@@ -109,19 +110,19 @@ int c2048_can_move(c2048_ctx *ctx, int direction)
 			for (x = 0; x < BOARD_SIZE; x++)
 			{
 				pos = c2048_pos(x, y);
-				cell = board[pos];
+				tile = board[pos];
 				if (x < BOARD_SIZE - 1 &&
-					cell != 0 &&
-					cell == board[c2048_addcol(pos)])
+					tile != 0 &&
+					tile == board[c2048_addcol(pos)])
 					return 1;
 				if (direction == MOVE_RIGHT &&
 					x > 0 &&
-					cell == 0 &&
+					tile == 0 &&
 					board[c2048_subcol(pos)] != 0)
 					return 1;
 				if (direction == MOVE_LEFT &&
 					x < BOARD_SIZE - 1 &&
-					cell == 0 &&
+					tile == 0 &&
 					board[c2048_addcol(pos)] != 0)
 					return 1;
 			}
@@ -134,19 +135,19 @@ int c2048_can_move(c2048_ctx *ctx, int direction)
 			for (y = 0; y < BOARD_SIZE; y++)
 			{
 				pos = c2048_pos(x, y);
-				cell = board[pos];
+				tile = board[pos];
 				if (y < BOARD_SIZE - 1 &&
-					cell != 0 &&
-					cell == board[c2048_addrow(pos)])
+					tile != 0 &&
+					tile == board[c2048_addrow(pos)])
 					return 1;
 				if (direction == MOVE_DOWN &&
 					y > 0 &&
-					cell == 0 &&
+					tile == 0 &&
 					board[c2048_subrow(pos)] != 0)
 					return 1;
 				if (direction == MOVE_UP &&
 					y < BOARD_SIZE - 1 &&
-					cell == 0 &&
+					tile == 0 &&
 					board[c2048_addrow(pos)] != 0)
 					return 1;
 			}
@@ -155,60 +156,99 @@ int c2048_can_move(c2048_ctx *ctx, int direction)
 	return 0;
 }
 
+/* This function handles collapsing adjacent matching tiles.
+ *
+ * It iterates over the board using start, end & step. This controls whether we are working
+ * on a left/right or up/down direction. start should always be less than end, and step should
+ * always be positive.
+ *
+ * One side effect of this tile is that after two tiles are collapsed, we insert a 0 tile.
+ * Thus a second call to _c2048_do_move is required to fill the gap.
+ */
 uint32_t _c2048_do_collapse(c2048_ctx *ctx, int start, int end, int step)
 {
 	int i, score = 0;
-	uint32_t *board, *cell;
+	uint32_t *board, *tile;
 
 	board = (uint32_t*)(ctx->board);
 
 	for (i = start; i < end; i += step)
 	{
-		cell = &(board[i]);
-		if (*cell == 0)
+		tile = &(board[i]);
+		if (*tile == 0)
 			continue;
 
-		if (*cell == board[i + step])
+		if (*tile == board[i + step])
 		{
-			*cell *= 2;
+			*tile *= 2;
 			board[i + step] = 0;
-			score += *cell;
+			score += *tile;
 		}
 	}
 
 	return score;
 }
 
+/* This function handles moving the tiles.
+ *
+ * It iterates over the board using start, end & step. This controls whether we are working
+ * on a left/right or up/down direction. start should always be less than end, and step should
+ * always be positive.
+ *
+ * We handle down and right condensing by using a buffer that is twice the size of the board.
+ * We pack all the tiles into the end of the buffer then use a simple hack to make down and
+ * right.
+ *
+ * Start:
+ *   input[4]  = {0, 2, 2, 0};
+ *   buffer[8] = {0, 0, 0, 0, 0, 0, 0};
+ *
+ * Condensed:
+ *   buffer[8] = {0, 0, 0, 0, 2, 2, 0, 0};
+ *   tile_counter = 2; // 2 tiles found.
+ *
+ * Output for left:
+ * buffer[8] = {0, 0, 0, 2, 2, 0, 0};
+ *                       ^- start here
+ * output[4] = {2, 2, 0, 0};
+ *
+ * Output for right:
+ * buffer[8] = {0, 0, 0, 0, 2, 2, 0, 0};
+ *                    ^- start here.
+ * output[4] = {0, 0, 2, 2};
+ *
+ * We use tile_counter to get the right direction offset.
+ */
 void _c2048_do_move(c2048_ctx *ctx, int start, int end, int step, int direction)
 {
 	int i, pos;
 	uint32_t *board;
-	uint32_t _cells[BOARD_SIZE * 2], *cells, cell_counter = 0;
+	uint32_t _tiles[BOARD_SIZE * 2], *tiles, tile_counter = 0;
 
 	for (i = 0; i < BOARD_SIZE * 2; i++)
-		_cells[i] = 0;
+		_tiles[i] = 0;
 
 	board = (uint32_t*)(ctx->board);
-	cells = (uint32_t*)&(_cells[BOARD_SIZE]);
+	tiles = (uint32_t*)&(_tiles[BOARD_SIZE]);
 
 	for (pos = start; pos <= end; pos += step)
 	{
 		if (board[pos] == 0)
 			continue;
-		cells[cell_counter++] = board[pos];
+		tiles[tile_counter++] = board[pos];
 	}
 
-	if (cell_counter == BOARD_SIZE || cell_counter == 0)
+	if (tile_counter == BOARD_SIZE || tile_counter == 0)
 		return;
 
 	/* HAX */
 	if (direction == MOVE_DOWN || direction == MOVE_RIGHT)
-		cells = (uint32_t*)&(_cells[cell_counter]);
+		tiles = (uint32_t*)&(_tiles[tile_counter]);
 
-	cell_counter = 0;
+	tile_counter = 0;
 	for (pos = start; pos <= end; pos += step)
 	{
-		board[pos] = cells[cell_counter++];
+		board[pos] = tiles[tile_counter++];
 	}
 }
 
@@ -216,13 +256,13 @@ uint32_t c2048_do_move(c2048_ctx *ctx, int direction)
 {
 	uint32_t score = 0, i;
 	uint32_t start, end, step;
-	uint32_t cells[MAX_BOARD];
+	uint32_t tiles[BOARD_MAX];
 
 	switch (direction)
 	{
 	case MOVE_RIGHT:
 	case MOVE_LEFT:
-		memcpy(cells, ctx->board, sizeof(cells));
+		memcpy(tiles, ctx->board, sizeof(tiles));
 
 		step = 1;
 		for (i = 0; i < BOARD_SIZE; i++)
@@ -238,7 +278,7 @@ uint32_t c2048_do_move(c2048_ctx *ctx, int direction)
 
 	case MOVE_DOWN:
 	case MOVE_UP:
-		memcpy(cells, ctx->board, sizeof(cells));
+		memcpy(tiles, ctx->board, sizeof(tiles));
 
 		step = BOARD_SIZE;
 		for (i = 0; i < BOARD_SIZE; i++)
@@ -255,7 +295,7 @@ uint32_t c2048_do_move(c2048_ctx *ctx, int direction)
 		break;
 	}
 
-	if (memcmp(cells, ctx->board, sizeof(cells)) != 0)
+	if (memcmp(tiles, ctx->board, sizeof(tiles)) != 0)
 		c2048_add_tile(ctx);
 
 	ctx->score += score;
@@ -282,13 +322,13 @@ void c2048_add_tile(c2048_ctx *ctx)
 {
 	uint32_t i;
 	uint32_t rand_spots_total = 0;
-	uint32_t rand_spots[MAX_BOARD];
+	uint32_t rand_spots[BOARD_MAX];
 	uint32_t rand_spot, rand_value;
 
 	if (ctx == NULL)
 		return;
 
-	for (i = 0; i < MAX_BOARD; i++)
+	for (i = 0; i < BOARD_MAX; i++)
 	if (ctx->board[i] == 0)
 		rand_spots[rand_spots_total++] = i;
 
