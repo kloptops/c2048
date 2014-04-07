@@ -238,10 +238,10 @@ double c2048_ai_calc_smoothness(c2048_ai_ctx *ai_ctx)
 
 #if BOARD_SIZE == 4
 static const uint32_t _rowscore_weight[16] = {
-	16, 15, 14, 13,
-	 9, 10, 11, 12,
-	 8,  7,  6,  5,
-	 4,  3,  2,  1,
+	13, 14, 15, 16,
+	12, 11, 10,  9,
+	5,  6,  7,  8,
+	4,  3,  2,  1,
 	};
 #elif BOARD_SIZE == 5
 static const uint32_t _rowscore_weight[25] = {
